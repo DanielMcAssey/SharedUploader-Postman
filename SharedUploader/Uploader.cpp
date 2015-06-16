@@ -34,6 +34,56 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 {
 	// TODO: Do upload to API
 	// REQUIRED: API isnt ready yet.
+	struct stat uploadFileInfo;
+	curl_off_t uploadFileSize;
+
+	if (UploadFileExists(FileLocation)) // Redundant check, probably remove
+	{
+		stat(FileLocation.c_str(), &uploadFileInfo);
+		uploadFileSize = uploadFileInfo.st_size;
+
+		CURL* curlHandle = curl_easy_init();
+		CURLcode curlResult;
+		if (!curlHandle)
+			return 0;
+
+		struct curl_httppost *form_post_params = NULL;
+		struct curl_httppost *form_post_last_ptr = NULL;
+		struct curl_slist *request_headers = NULL;
+
+		request_headers = curl_slist_append(request_headers, ("X-API-KEY: " + _API_KEY).c_str());
+
+		curl_formadd(&form_post_params,
+			&form_post_last_ptr,
+			CURLFORM_COPYNAME, "apiKey",
+			CURLFORM_COPYCONTENTS, _API_KEY,
+			CURLFORM_END);
+
+		curl_formadd(&form_post_params,
+			&form_post_last_ptr,
+			CURLFORM_COPYNAME, "uploadFile",
+			CURLFORM_FILE, FileLocation,
+			CURLFORM_END);
+
+		curl_formadd(&form_post_params,
+			&form_post_last_ptr,
+			CURLFORM_COPYNAME, "submit",
+			CURLFORM_COPYCONTENTS, "send",
+			CURLFORM_END);
+
+		curl_easy_setopt(curlHandle, CURLOPT_URL, _API_UPLOAD_URL);
+		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, request_headers);
+		curl_easy_setopt(curlHandle, CURLOPT_HTTPPOST, form_post_params);
+
+		curlResult = curl_easy_perform(curlHandle);
+		if (curlResult != CURLE_OK)
+			return 0;
+
+		curl_easy_cleanup(curlHandle);
+		curl_formfree(form_post_params);
+		curl_slist_free_all(request_headers);
+
+	}
 
 	return 0;
 }
