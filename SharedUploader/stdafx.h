@@ -19,6 +19,9 @@
 #include <string>
 #include <unordered_map>
 #include <sys/stat.h>
+
+// CURL library
+#define HTTP_ONLY
 #include <curl/curl.h>
 
 // Fix for TCHAR
@@ -27,8 +30,5 @@ typedef std::string String;
 #else
 typedef std::wstring String;
 #endif
-
-#include "UploadFileTypes.h"
-#include "Uploader.h"
 
 #endif

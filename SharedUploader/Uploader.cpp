@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Uploader.h"
+#include "UploadFileTypes.h"
 
 
 Uploader::Uploader(String apiKey)
@@ -32,13 +33,11 @@ enum Uploader_FileTypes Uploader::GetFileTypeByString(String strFileType)
 
 unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileLocation)
 {
-	// TODO: Do upload to API
 	// REQUIRED: API isnt ready yet.
-	struct stat uploadFileInfo;
-	curl_off_t uploadFileSize;
-
 	if (UploadFileExists(FileLocation)) // Redundant check, probably remove
 	{
+		struct stat uploadFileInfo;
+		curl_off_t uploadFileSize;
 		stat(FileLocation.c_str(), &uploadFileInfo);
 		uploadFileSize = uploadFileInfo.st_size;
 
@@ -52,12 +51,6 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 		struct curl_slist *request_headers = NULL;
 
 		request_headers = curl_slist_append(request_headers, ("X-API-KEY: " + _API_KEY).c_str());
-
-		curl_formadd(&form_post_params,
-			&form_post_last_ptr,
-			CURLFORM_COPYNAME, "apiKey",
-			CURLFORM_COPYCONTENTS, _API_KEY,
-			CURLFORM_END);
 
 		curl_formadd(&form_post_params,
 			&form_post_last_ptr,
@@ -82,7 +75,6 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 		curl_easy_cleanup(curlHandle);
 		curl_formfree(form_post_params);
 		curl_slist_free_all(request_headers);
-
 	}
 
 	return 0;

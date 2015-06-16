@@ -3,6 +3,9 @@
 
 #include "stdafx.h"
 
+#include "UploadFileTypes.h"
+#include "Uploader.h"
+
 using namespace std;
 
 int main(int argc, char* argv[])
