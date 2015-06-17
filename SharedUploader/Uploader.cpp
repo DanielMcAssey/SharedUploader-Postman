@@ -52,7 +52,7 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 		struct curl_httppost *form_post_last_ptr = NULL;
 		struct curl_slist *request_headers = NULL;
 
-		request_headers = curl_slist_append(request_headers, ("X-API-KEY: " + _API_KEY).c_str());
+		request_headers = curl_slist_append(request_headers, ("X-Authorization: " + _API_KEY).c_str());
 
 		curl_formadd(&form_post_params,
 			&form_post_last_ptr,
