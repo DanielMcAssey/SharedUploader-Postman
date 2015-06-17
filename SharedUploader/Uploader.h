@@ -17,7 +17,7 @@ public:
 protected:
 	String _API_KEY = "";
 	const String _API_VERSION = "1.0";
-	const String _API_UPLOAD_URL = "http://shared.glokon.com/api/" + _API_VERSION + "/upload";
+	const String _API_UPLOAD_URL = "http://share.glokon.me/api/" + _API_VERSION + "/upload";
 	std::unordered_map<String, enum Uploader_FileTypes> __UPLOADER_FILETYPE_MAP;
 
 	void PopulateFileTypeMap(void);

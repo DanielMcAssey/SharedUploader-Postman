@@ -15,7 +15,9 @@ void Uploader::PopulateFileTypeMap(void)
 	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("generic", Uploader_FileTypes::UPLOADER_GENERIC_FILE));
 	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("image", Uploader_FileTypes::UPLOADER_IMAGE));
 	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("pdf", Uploader_FileTypes::UPLOADER_PDF));
+	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("text", Uploader_FileTypes::UPLOADER_TEXT));
 }
+
 
 enum Uploader_FileTypes Uploader::GetFileTypeByString(String strFileType)
 {
@@ -27,7 +29,7 @@ enum Uploader_FileTypes Uploader::GetFileTypeByString(String strFileType)
 	if (findIterator != __UPLOADER_FILETYPE_MAP.end())
 		return findIterator->second; // Return second element in map (ENUM)
 
-	return Uploader_FileTypes::UPLOADER_ERROR; // Return generic error, context can be gained from function
+	return Uploader_FileTypes::UPLOADER_ERROR; // Return generic error, context can be gained from function name
 }
 
 
@@ -79,3 +81,4 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 
 	return 0;
 }
+
