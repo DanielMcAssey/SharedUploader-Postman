@@ -17,10 +17,19 @@ public:
 protected:
 	String _API_KEY = "";
 	const String _API_VERSION = "v1";
+#if _DEBUG
+	const String _API_UPLOAD_URL = "http://shareduploader.mcassey.net/api/" + _API_VERSION + "/upload";
+#else
 	const String _API_UPLOAD_URL = "http://share.glokon.me/api/" + _API_VERSION + "/upload";
+#endif
+	
 	std::unordered_map<String, enum Uploader_FileTypes> __UPLOADER_FILETYPE_MAP;
+	
+	void CopyToClipboard(String &clipboardData);
 
 	void PopulateFileTypeMap(void);
+
+	static size_t curl_write(void *ptr, size_t size, size_t nmemb, void *stream);
 };
 
 #endif

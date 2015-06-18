@@ -2,6 +2,7 @@
 #include "Uploader.h"
 #include "UploadFileTypes.h"
 
+String curlResponseBuffer;
 
 Uploader::Uploader(String apiKey)
 {
@@ -57,7 +58,7 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 		curl_formadd(&form_post_params,
 			&form_post_last_ptr,
 			CURLFORM_COPYNAME, "uploadFile",
-			CURLFORM_FILE, FileLocation,
+			CURLFORM_FILE, FileLocation.c_str(),
 			CURLFORM_END);
 
 		curl_formadd(&form_post_params,
@@ -66,19 +67,67 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 			CURLFORM_COPYCONTENTS, "send",
 			CURLFORM_END);
 
-		curl_easy_setopt(curlHandle, CURLOPT_URL, _API_UPLOAD_URL);
+		curl_easy_setopt(curlHandle, CURLOPT_URL, _API_UPLOAD_URL.c_str());
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, request_headers);
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPPOST, form_post_params);
+		curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, Uploader::curl_write);
+
+#if _DEBUG
+		curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, 1L);
+#endif
 
 		curlResult = curl_easy_perform(curlHandle);
 		if (curlResult != CURLE_OK)
-			return 0;
+			fprintf(stderr, "CURL failed: %s\n", curl_easy_strerror(curlResult));
+		else
+		{
+			rapidjson::Document jsonDocument;
+			jsonDocument.Parse(curlResponseBuffer.c_str());
+
+			if (!jsonDocument["ok"].IsNull())
+			{
+				if (!jsonDocument["ok"]["data"]["clipboard_url"].IsNull())
+				{
+					rapidjson::Value& cliboardValue = jsonDocument["ok"]["data"]["clipboard_url"];
+					String clipboardURL = cliboardValue.GetString();
+					CopyToClipboard(clipboardURL);
+
+					printf("Share URL: %s\n", clipboardURL.c_str());
+				}
+			}
+		}
 
 		curl_easy_cleanup(curlHandle);
 		curl_formfree(form_post_params);
 		curl_slist_free_all(request_headers);
+
 	}
 
 	return 0;
+}
+
+
+void Uploader::CopyToClipboard(String &clipboardData)
+{
+	OpenClipboard(0);
+	EmptyClipboard();
+	HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, clipboardData.size());
+	if (!hg)
+	{
+		CloseClipboard();
+		return;
+	}
+	memcpy(GlobalLock(hg), clipboardData.c_str(), clipboardData.size());
+	GlobalUnlock(hg);
+	SetClipboardData(CF_TEXT, hg);
+	CloseClipboard();
+	GlobalFree(hg);
+}
+
+
+size_t Uploader::curl_write(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+	curlResponseBuffer.append((char*)ptr, size * nmemb);
+	return size*nmemb;
 }
 

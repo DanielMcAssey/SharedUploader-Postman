@@ -24,6 +24,11 @@
 #define HTTP_ONLY
 #include <curl/curl.h>
 
+//RAPIDJSON
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 // Fix for TCHAR
 #ifndef UNICODE  
 typedef std::string String;

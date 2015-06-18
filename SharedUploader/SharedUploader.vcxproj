@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(LIBCURL)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(LIBCURL)\include;$(RAPIDJSON)\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LIBCURL)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(LIBCURL)\INCLUDE;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LIBCURL)\LIB;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(LIBCURL)\include;$(RAPIDJSON)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LIBCURL)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

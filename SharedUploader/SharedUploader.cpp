@@ -8,6 +8,12 @@
 
 using namespace std;
 
+#if _DEBUG
+const int expectedArgCount = 1;
+#else
+const int expectedArgCount = 4;
+#endif
+
 int main(int argc, char* argv[])
 {
 	// Header
@@ -15,37 +21,48 @@ int main(int argc, char* argv[])
 	cout << " GLOKON Shared Uploader (Server: shared.glokon.com)" << endl;
 	cout << "====================================================" << endl;
 
-	if (argc == 3) // Make sure we have 3 args: api key, file type and file location
+	if (argc == expectedArgCount) // Make sure we have 3 args: api key, file type and file location
 	{
-		String apiKey = argv[0];
+#if _DEBUG
+		String apiKey = "";
+		String fileType = "";
+		String fileLocation = "";
+#else
+		String apiKey = argv[1];
+		String fileType = argv[2];
+		String fileLocation = argv[3];
+#endif
+		
+
 		Uploader* UploadTool = new Uploader(apiKey);
-
-		enum Uploader_FileTypes fileType = UploadTool->GetFileTypeByString(argv[1]); // Get enum from string
-		if (fileType == Uploader_FileTypes::UPLOADER_ERROR)
+		enum Uploader_FileTypes enumFileType = UploadTool->GetFileTypeByString(fileType); // Get enum from string
+		if (enumFileType == Uploader_FileTypes::UPLOADER_ERROR)
 			return -1;
-
-		String fileLocation = argv[2];
+		
 		if (!Uploader::UploadFileExists(fileLocation))
 			return -1;
 
+		cout << "Uploading File: " + fileLocation << endl;
+
 		// TODO: Make upload async
-		unsigned int uploadResult = UploadTool->UploadFile(fileType, fileLocation);
+		unsigned int uploadResult = UploadTool->UploadFile(enumFileType, fileLocation);
 		if (uploadResult > 0) // Upload was OK
 		{
 			cout << "UPLOAD COMPLETE" << endl;
+#if _DEBUG
+			// Stop console from exiting when debugging
+			std::getchar();
+#endif
 			return 0;
 		}
-		else // Upload was not OK :(
-		{
-			cout << "UPLOAD FAILED :(" << endl;
-			return -1;
-		}
 	}
+
+	cout << "UPLOAD FAILED :(" << endl;
 
 #if _DEBUG
 	// Stop console from exiting when debugging
 	std::getchar();
 #endif
 	
-	return 0;
+	return -1;
 }
