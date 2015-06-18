@@ -92,7 +92,7 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 					String clipboardURL = cliboardValue.GetString();
 					CopyToClipboard(clipboardURL);
 
-					printf("Share URL: %s\n", clipboardURL.c_str());
+					printf("Share URL: %s \n", clipboardURL.c_str());
 				}
 			}
 		}
@@ -111,13 +111,14 @@ void Uploader::CopyToClipboard(String &clipboardData)
 {
 	OpenClipboard(0);
 	EmptyClipboard();
-	HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, clipboardData.size());
+	const size_t stringLength = clipboardData.size() + 1;
+	HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, stringLength);
 	if (!hg)
 	{
 		CloseClipboard();
 		return;
 	}
-	memcpy(GlobalLock(hg), clipboardData.c_str(), clipboardData.size());
+	memcpy(GlobalLock(hg), clipboardData.c_str(), stringLength);
 	GlobalUnlock(hg);
 	SetClipboardData(CF_TEXT, hg);
 	CloseClipboard();
