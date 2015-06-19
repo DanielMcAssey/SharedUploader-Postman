@@ -81,19 +81,29 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 			fprintf(stderr, "CURL failed: %s\n", curl_easy_strerror(curlResult));
 		else
 		{
-			rapidjson::Document jsonDocument;
-			jsonDocument.Parse(curlResponseBuffer.c_str());
-
-			if (!jsonDocument["ok"].IsNull())
+			long result_http_code = 0;
+			curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &result_http_code);
+			if (result_http_code != 503)
 			{
-				if (!jsonDocument["ok"]["data"]["clipboard_url"].IsNull())
-				{
-					rapidjson::Value& cliboardValue = jsonDocument["ok"]["data"]["clipboard_url"];
-					String clipboardURL = cliboardValue.GetString();
-					CopyToClipboard(clipboardURL);
+				rapidjson::Document jsonDocument;
+				jsonDocument.Parse(curlResponseBuffer.c_str());
 
-					printf("Share URL: %s \n", clipboardURL.c_str());
+				if (!jsonDocument["ok"].IsNull())
+				{
+					if (!jsonDocument["ok"]["data"]["clipboard_url"].IsNull())
+					{
+						rapidjson::Value& cliboardValue = jsonDocument["ok"]["data"]["clipboard_url"];
+						String clipboardURL = cliboardValue.GetString();
+						CopyToClipboard(clipboardURL);
+						printf("Share URL: %s \n", clipboardURL.c_str());
+					}
 				}
+			}
+			else
+			{
+				String maintenanceMessage = "SharedUploader is in maintenance";
+				CopyToClipboard(maintenanceMessage);
+				fprintf(stderr, "Server (RESPONSE): %s \n", maintenanceMessage.c_str());
 			}
 		}
 
