@@ -1,5 +1,5 @@
-// @name: Shared Uploader for GLOKON
-// @version: 0.1.0
+// @name: SharedUploader Postman
+// @version: 1.0.0
 
 #include "stdafx.h"
 
@@ -17,9 +17,9 @@ const int expectedArgCount = 4;
 int main(int argc, char* argv[])
 {
 	// Header
-	cout << "====================================================" << endl;
-	cout << " GLOKON Shared Uploader (Server: shared.glokon.com)" << endl;
-	cout << "====================================================" << endl;
+	cout << "===========================================================" << endl;
+	cout << " GLOKON SharedUploader Postman (Server: shared.glokon.com)" << endl;
+	cout << "===========================================================" << endl;
 
 	if (argc == expectedArgCount) // Make sure we have 3 args: api key, file type and file location
 	{
