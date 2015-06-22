@@ -1,42 +1,17 @@
 #include "stdafx.h"
 #include "Uploader.h"
-#include "UploadFileTypes.h"
 
 String curlResponseBuffer;
+
 
 Uploader::Uploader(String apiKey)
 {
 	_API_KEY = apiKey;
-	PopulateFileTypeMap();
 }
 
 
-void Uploader::PopulateFileTypeMap(void)
+unsigned int Uploader::UploadFile(String FileLocation)
 {
-	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("generic", Uploader_FileTypes::UPLOADER_GENERIC_FILE));
-	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("image", Uploader_FileTypes::UPLOADER_IMAGE));
-	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("pdf", Uploader_FileTypes::UPLOADER_PDF));
-	__UPLOADER_FILETYPE_MAP.insert(std::pair<String, Uploader_FileTypes>("text", Uploader_FileTypes::UPLOADER_TEXT));
-}
-
-
-enum Uploader_FileTypes Uploader::GetFileTypeByString(String strFileType)
-{
-	String lowerFileType = strFileType; // To make Lowercase
-	for (unsigned int i = 0; i < lowerFileType.length(); ++i)
-		lowerFileType[i] = tolower(lowerFileType[i]); // Lowercase each of the char in string
-
-	std::unordered_map<String, enum Uploader_FileTypes>::const_iterator findIterator = __UPLOADER_FILETYPE_MAP.find(lowerFileType); // Iterator to check item was found
-	if (findIterator != __UPLOADER_FILETYPE_MAP.end())
-		return findIterator->second; // Return second element in map (ENUM)
-
-	return Uploader_FileTypes::UPLOADER_ERROR; // Return generic error, context can be gained from function name
-}
-
-
-unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileLocation)
-{
-	// REQUIRED: API isnt ready yet.
 	if (UploadFileExists(FileLocation)) // Redundant check, probably remove
 	{
 		struct stat uploadFileInfo;
@@ -71,7 +46,6 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, request_headers);
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPPOST, form_post_params);
 		curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, Uploader::curl_write);
-
 #if _DEBUG
 		curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, 1L);
 #endif
@@ -98,6 +72,19 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 						printf("Share URL: %s \n", clipboardURL.c_str());
 					}
 				}
+				else
+				{
+					if (!jsonDocument["error"]["code"].IsNull())
+					{
+						rapidjson::Value& errorValue = jsonDocument["error"]["code"];
+						String errorCode = errorValue.GetString();
+						printf("Server Response [ERROR]: %s \n", errorCode.c_str());
+					}
+					else
+					{
+						printf("Server Response [ERROR]: %s \n", "UNKNOWN ERROR");
+					}
+				}
 			}
 			else
 			{
@@ -110,7 +97,6 @@ unsigned int Uploader::UploadFile(enum Uploader_FileTypes FileType, String FileL
 		curl_easy_cleanup(curlHandle);
 		curl_formfree(form_post_params);
 		curl_slist_free_all(request_headers);
-
 	}
 
 	return 0;
