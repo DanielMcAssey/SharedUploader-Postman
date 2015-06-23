@@ -73,7 +73,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 						printf("Share URL: %s \n", clipboardURL.c_str());
 						expectedResult = 1; // OK :)
 					}
-					expectedResult = -1; // FAIL :(
+					expectedResult = 0; // FAIL :(
 				}
 				else
 				{
@@ -87,7 +87,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 					{
 						printf("Server Response [ERROR]: %s \n", "UNKNOWN ERROR");
 					}
-					expectedResult = -1; // FAIL :(
+					expectedResult = 0; // FAIL :(
 				}
 			}
 			else
@@ -95,7 +95,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 				String maintenanceMessage = "SharedUploader is in maintenance";
 				CopyToClipboard(maintenanceMessage);
 				fprintf(stderr, "Server (RESPONSE): %s \n", maintenanceMessage.c_str());
-				expectedResult = -1; // FAIL :(
+				expectedResult = 0; // FAIL :(
 			}
 		}
 

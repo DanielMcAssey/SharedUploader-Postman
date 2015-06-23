@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	cout << "UPLOAD FAILED :(" << endl;
+	cout << "UPLOAD FAILED" << endl;
 
 #if _DEBUG
 	// Stop console from exiting when debugging
