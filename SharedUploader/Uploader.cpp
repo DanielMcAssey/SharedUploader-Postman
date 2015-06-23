@@ -63,9 +63,9 @@ unsigned int Uploader::UploadFile(String FileLocation)
 				rapidjson::Document jsonDocument;
 				jsonDocument.Parse(curlResponseBuffer.c_str());
 
-				if (!jsonDocument["ok"].IsNull())
+				if (jsonDocument.HasMember("ok"))
 				{
-					if (!jsonDocument["ok"]["data"]["clipboard_url"].IsNull())
+					if (jsonDocument["ok"].HasMember("data") && jsonDocument["ok"]["data"].HasMember("clipboard_url"))
 					{
 						rapidjson::Value& cliboardValue = jsonDocument["ok"]["data"]["clipboard_url"];
 						String clipboardURL = cliboardValue.GetString();
@@ -74,9 +74,9 @@ unsigned int Uploader::UploadFile(String FileLocation)
 						expectedResult = 1; // OK :)
 					}
 				}
-				else
+				else if (jsonDocument.HasMember("error"))
 				{
-					if (!jsonDocument["error"]["code"].IsNull())
+					if (jsonDocument["error"].HasMember("code"))
 					{
 						rapidjson::Value& errorValue = jsonDocument["error"]["code"];
 						String errorCode = errorValue.GetString();
@@ -85,6 +85,12 @@ unsigned int Uploader::UploadFile(String FileLocation)
 					else
 					{
 						printf("Server Response [ERROR]: %s \n", "UNKNOWN ERROR");
+					}
+					if (jsonDocument["error"].HasMember("data") && jsonDocument["error"]["data"].HasMember("mime-type"))
+					{
+						rapidjson::Value& errorValue = jsonDocument["error"]["data"]["mime-type"];
+						String errorData = errorValue.GetString();
+						printf("Server Response [ERROR-DATA]: %s \n", errorData.c_str());
 					}
 				}
 			}
