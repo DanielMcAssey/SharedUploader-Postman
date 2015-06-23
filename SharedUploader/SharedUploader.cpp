@@ -16,9 +16,9 @@ const int expectedArgCount = 3;
 int main(int argc, char* argv[])
 {
 	// Header
-	cout << "===========================================================" << endl;
-	cout << " GLOKON SharedUploader Postman (Server: shared.glokon.com)" << endl;
-	cout << "===========================================================" << endl;
+	cout << "=========================================================" << endl;
+	cout << " GLOKON SharedUploader Postman (Server: share.glokon.me)" << endl;
+	cout << "=========================================================" << endl;
 
 	if (argc == expectedArgCount) // Make sure we have 3 args: api key, file type and file location
 	{
