@@ -92,7 +92,8 @@ unsigned int Uploader::UploadFile(String FileLocation)
 			{
 				String maintenanceMessage = "SharedUploader [SERVER] is in maintenance";
 				CopyToClipboard(maintenanceMessage);
-				fprintf(stderr, "Server (RESPONSE): %s \n", maintenanceMessage.c_str());
+				fprintf(stderr, "Server Response [ERROR]: %s \n", maintenanceMessage.c_str());
+				printf("Server Response [ERROR]: %s \n", maintenanceMessage.c_str());
 			}
 		}
 
