@@ -14,6 +14,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 {
 	if (UploadFileExists(FileLocation)) // Redundant check, probably remove
 	{
+		int expectedResult = 0;
 		struct stat uploadFileInfo;
 		curl_off_t uploadFileSize;
 		stat(FileLocation.c_str(), &uploadFileInfo);
@@ -70,7 +71,9 @@ unsigned int Uploader::UploadFile(String FileLocation)
 						String clipboardURL = cliboardValue.GetString();
 						CopyToClipboard(clipboardURL);
 						printf("Share URL: %s \n", clipboardURL.c_str());
+						expectedResult = 1; // OK :)
 					}
+					expectedResult = -1; // FAIL :(
 				}
 				else
 				{
@@ -84,6 +87,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 					{
 						printf("Server Response [ERROR]: %s \n", "UNKNOWN ERROR");
 					}
+					expectedResult = -1; // FAIL :(
 				}
 			}
 			else
@@ -91,12 +95,14 @@ unsigned int Uploader::UploadFile(String FileLocation)
 				String maintenanceMessage = "SharedUploader is in maintenance";
 				CopyToClipboard(maintenanceMessage);
 				fprintf(stderr, "Server (RESPONSE): %s \n", maintenanceMessage.c_str());
+				expectedResult = -1; // FAIL :(
 			}
 		}
 
 		curl_easy_cleanup(curlHandle);
 		curl_formfree(form_post_params);
 		curl_slist_free_all(request_headers);
+		return expectedResult;
 	}
 
 	return 0;

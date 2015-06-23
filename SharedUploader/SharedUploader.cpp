@@ -31,7 +31,6 @@ int main(int argc, char* argv[])
 #endif
 
 		Uploader* UploadTool = new Uploader(apiKey);
-		
 		if (!Uploader::UploadFileExists(fileLocation))
 			return -1;
 
@@ -57,5 +56,5 @@ int main(int argc, char* argv[])
 	std::getchar();
 #endif
 	
-	return -1;
+	return 1;
 }
