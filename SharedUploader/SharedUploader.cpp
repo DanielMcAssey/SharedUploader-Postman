@@ -36,7 +36,6 @@ int main(int argc, char* argv[])
 
 		cout << "Uploading File: " + fileLocation << endl;
 
-		// TODO: Make upload async
 		unsigned int uploadResult = UploadTool->UploadFile(fileLocation);
 		if (uploadResult > 0) // Upload was OK
 		{

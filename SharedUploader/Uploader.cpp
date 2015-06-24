@@ -47,18 +47,22 @@ unsigned int Uploader::UploadFile(String FileLocation)
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, request_headers);
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPPOST, form_post_params);
 		curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, Uploader::curl_write);
+		curl_easy_setopt(curlHandle, CURLOPT_FRESH_CONNECT, TRUE);
+		curl_easy_setopt(curlHandle, CURLOPT_NOPROGRESS, FALSE);
+		curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, Uploader::curl_progress_func);
 #if _DEBUG
 		curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, 1L);
 #endif
 
 		curlResult = curl_easy_perform(curlHandle);
+		printf("\n");
 		if (curlResult != CURLE_OK)
 			fprintf(stderr, "CURL failed: %s\n", curl_easy_strerror(curlResult));
 		else
 		{
 			long result_http_code = 0;
 			curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &result_http_code);
-			if (result_http_code != 503)
+			if (result_http_code != 503) //503 Means maintenance
 			{
 				rapidjson::Document jsonDocument;
 				jsonDocument.Parse(curlResponseBuffer.c_str());
@@ -86,6 +90,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 					{
 						printf("Server Response [ERROR]: %s \n", "UNKNOWN ERROR");
 					}
+
 					if (jsonDocument["error"].HasMember("data") && jsonDocument["error"]["data"].HasMember("mime-type"))
 					{
 						rapidjson::Value& errorValue = jsonDocument["error"]["data"]["mime-type"];
@@ -108,6 +113,39 @@ unsigned int Uploader::UploadFile(String FileLocation)
 		curl_slist_free_all(request_headers);
 		return expectedResult;
 	}
+
+	return 0;
+}
+
+
+int Uploader::curl_progress_func(void* ptr, double TotalToDownload, double NowDownloaded, double TotalToUpload, double NowUploaded)
+{
+	if (TotalToUpload <= 0.0)
+	{
+		return 0;
+	}
+
+	const int progressBarWidth = 40;
+	double uploadedFraction = NowUploaded / TotalToUpload;
+	int progressBarDots = round(uploadedFraction * progressBarWidth);
+
+	int progressBarDot = 0;
+	printf("UPLOADING: %3.0f%% [", uploadedFraction * 100);
+	for (; progressBarDot < progressBarDots; progressBarDot++) {
+		if (progressBarDot == (progressBarDots - 1) && (uploadedFraction * 100) < 100.0)
+		{
+			printf(">");
+		}
+		else
+		{
+			printf("=");
+		}
+	}
+	for (; progressBarDot < progressBarWidth; progressBarDot++) {
+		printf(" ");
+	}
+	printf("]\r");
+	fflush(stdout);
 
 	return 0;
 }
