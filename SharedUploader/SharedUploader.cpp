@@ -47,6 +47,10 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
+	else
+	{
+		cout << "TOO FEW ARGUMENTS" << endl;
+	}
 
 	cout << "UPLOAD FAILED" << endl;
 
