@@ -7,11 +7,7 @@
 
 using namespace std;
 
-#if _DEBUG
-const int expectedArgCount = 1;
-#else
 const int expectedArgCount = 3;
-#endif
 
 int main(int argc, char* argv[])
 {
@@ -20,20 +16,12 @@ int main(int argc, char* argv[])
 	cout << " GLOKON SharedUploader Postman (Server: share.glokon.me)" << endl;
 	cout << "=========================================================" << endl;
 
-	if (argc == expectedArgCount) // Make sure we have 3 args: api key, file type and file location
+	if (argc == expectedArgCount || _DEBUG) // Make sure we have 2 args: api key and file location
 	{
-#if _DEBUG
-		String apiKey = "";
-		String fileLocation = "";
-#else
 		String apiKey = argv[1];
 		String fileLocation = argv[2];
-#endif
 
 		Uploader* UploadTool = new Uploader(apiKey);
-		if (!Uploader::UploadFileExists(fileLocation))
-			return -1;
-
 		cout << "Uploading File: " + fileLocation << endl;
 
 		unsigned int uploadResult = UploadTool->UploadFile(fileLocation);

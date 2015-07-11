@@ -12,7 +12,7 @@ Uploader::Uploader(String apiKey)
 
 unsigned int Uploader::UploadFile(String FileLocation)
 {
-	if (UploadFileExists(FileLocation)) // Redundant check, probably remove
+	if (UploadFileExists(FileLocation))
 	{
 		int expectedResult = 0;
 		struct stat uploadFileInfo;
@@ -114,6 +114,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 		return expectedResult;
 	}
 
+	printf("FILE NOT FOUND - %s \n", (String)FileLocation);
 	return 0;
 }
 
