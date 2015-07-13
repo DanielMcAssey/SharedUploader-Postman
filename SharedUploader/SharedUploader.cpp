@@ -6,8 +6,6 @@
 
 using namespace std;
 
-const int expectedArgCount = 3;
-
 int main(int argc, char* argv[])
 {
 	// Header
@@ -15,8 +13,8 @@ int main(int argc, char* argv[])
 	cout << " GLOKON SharedUploader Postman (Server: share.glokon.me)" << endl;
 	cout << "=========================================================" << endl;
 
+	const int expectedArgCount = 3;
 	int appResult = 1;
-
 	if (argc == expectedArgCount) // Make sure we have 2 args: api key and file location
 	{
 		String apiKey = argv[1];

@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "Uploader.h"
 
-String curlResponseBuffer;
-
-
 Uploader::Uploader(String apiKey)
 {
 	_API_KEY = apiKey;
@@ -20,6 +17,8 @@ unsigned int Uploader::UploadFile(String FileLocation)
 		stat(FileLocation.c_str(), &uploadFileInfo);
 		uploadFileSize = uploadFileInfo.st_size;
 
+		String readBuffer;
+
 		CURL* curlHandle = curl_easy_init();
 		CURLcode curlResult;
 		if (!curlHandle)
@@ -30,6 +29,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 		struct curl_slist *request_headers = NULL;
 
 		request_headers = curl_slist_append(request_headers, ("X-Authorization: " + _API_KEY).c_str());
+		request_headers = curl_slist_append(request_headers, "Expect:");
 
 		curl_formadd(&form_post_params,
 			&form_post_last_ptr,
@@ -47,14 +47,19 @@ unsigned int Uploader::UploadFile(String FileLocation)
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, request_headers);
 		curl_easy_setopt(curlHandle, CURLOPT_HTTPPOST, form_post_params);
 		curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, Uploader::curl_write);
+		curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &readBuffer);
 		curl_easy_setopt(curlHandle, CURLOPT_FRESH_CONNECT, TRUE);
 		curl_easy_setopt(curlHandle, CURLOPT_NOPROGRESS, FALSE);
 		curl_easy_setopt(curlHandle, CURLOPT_PROGRESSFUNCTION, Uploader::curl_progress_func);
+		curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDSIZE, uploadFileSize);
 #if _DEBUG
 		curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, 1L);
 #endif
-
 		curlResult = curl_easy_perform(curlHandle);
+		curl_easy_cleanup(curlHandle);
+		curl_formfree(form_post_params);
+		curl_slist_free_all(request_headers);
+
 		printf("\n");
 		if (curlResult != CURLE_OK)
 			fprintf(stderr, "CURL failed: %s\n", curl_easy_strerror(curlResult));
@@ -65,7 +70,7 @@ unsigned int Uploader::UploadFile(String FileLocation)
 			if (result_http_code != 503) //503 Means maintenance
 			{
 				rapidjson::Document jsonDocument;
-				jsonDocument.Parse(curlResponseBuffer.c_str());
+				jsonDocument.Parse(readBuffer.c_str());
 
 				if (jsonDocument.HasMember("ok"))
 				{
@@ -107,15 +112,30 @@ unsigned int Uploader::UploadFile(String FileLocation)
 				printf("Server Response [ERROR]: %s \n", maintenanceMessage.c_str());
 			}
 		}
-
-		curl_easy_cleanup(curlHandle);
-		curl_formfree(form_post_params);
-		curl_slist_free_all(request_headers);
 		return expectedResult;
 	}
 
 	printf("FILE NOT FOUND - %s \n", (String)FileLocation);
 	return 0;
+}
+
+
+void Uploader::CopyToClipboard(String &clipboardData)
+{
+	OpenClipboard(0);
+	EmptyClipboard();
+	const size_t stringLength = clipboardData.size() + 1;
+	HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, stringLength);
+	if (!hg)
+	{
+		CloseClipboard();
+		return;
+	}
+	memcpy(GlobalLock(hg), clipboardData.c_str(), stringLength);
+	GlobalUnlock(hg);
+	SetClipboardData(CF_TEXT, hg);
+	CloseClipboard();
+	GlobalFree(hg);
 }
 
 
@@ -152,28 +172,8 @@ int Uploader::curl_progress_func(void* ptr, double TotalToDownload, double NowDo
 }
 
 
-void Uploader::CopyToClipboard(String &clipboardData)
+size_t Uploader::curl_write(void *ptr, size_t size, size_t nmemb, void *userp)
 {
-	OpenClipboard(0);
-	EmptyClipboard();
-	const size_t stringLength = clipboardData.size() + 1;
-	HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, stringLength);
-	if (!hg)
-	{
-		CloseClipboard();
-		return;
-	}
-	memcpy(GlobalLock(hg), clipboardData.c_str(), stringLength);
-	GlobalUnlock(hg);
-	SetClipboardData(CF_TEXT, hg);
-	CloseClipboard();
-	GlobalFree(hg);
+	((std::string*)userp)->append((char*)ptr, size * nmemb);
+	return size * nmemb;
 }
-
-
-size_t Uploader::curl_write(void *ptr, size_t size, size_t nmemb, void *stream)
-{
-	curlResponseBuffer.append((char*)ptr, size * nmemb);
-	return size*nmemb;
-}
-

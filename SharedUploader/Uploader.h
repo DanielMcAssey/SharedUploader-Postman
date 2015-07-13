@@ -22,10 +22,10 @@ protected:
 	const String _API_UPLOAD_URL = "http://share.glokon.me/api/" + _API_VERSION + "/upload";
 #endif
 	
-	void CopyToClipboard(String &clipboardData);
+	static void CopyToClipboard(String &clipboardData);
 
 	static int curl_progress_func(void* ptr, double TotalToDownload, double NowDownloaded, double TotalToUpload, double NowUploaded);
-	static size_t curl_write(void *ptr, size_t size, size_t nmemb, void *stream);
+	static size_t curl_write(void *ptr, size_t size, size_t nmemb, void *userp);
 };
 
 #endif

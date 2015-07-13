@@ -10,13 +10,14 @@
 
 #ifdef linux
 // -- Linux
-
+#include <unistd.h>
 #endif
 
 
 // Platform Independent
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <unordered_map>
 #include <sys/stat.h>
 
