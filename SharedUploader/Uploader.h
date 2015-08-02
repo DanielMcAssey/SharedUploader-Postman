@@ -16,11 +16,7 @@ public:
 protected:
 	String _API_KEY = "";
 	const String _API_VERSION = "v1";
-#if _DEBUG
-	const String _API_UPLOAD_URL = "http://shareduploader.mcassey.net/api/" + _API_VERSION + "/upload";
-#else
-	const String _API_UPLOAD_URL = "http://share.glokon.me/api/" + _API_VERSION + "/upload";
-#endif
+	const String _API_UPLOAD_URL = "http://share.glokon.me/api/" + _API_VERSION + "/upload"; // TODO: Self-hosted API endpoints need to be supported
 	
 	static void CopyToClipboard(String &clipboardData);
 
